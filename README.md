@@ -43,7 +43,7 @@ nano .env
 
 `python3 ./piholegrabber.py`
 
-Should see a bit of output showing the PIs that are being monitored. It'll wait for you to `ctrl+c` to quit.
+Should see a bit of output showing the Pis that are being monitored. It'll wait for you to `ctrl+c` to quit.
 
 **Set up service**
 
@@ -60,7 +60,7 @@ Check it's running with:
 ```
 sudo systemctl status piholemanage
 ```
-You should also find a new `data` directory in the `pihole-manage` directory.
+You should also find a new `data` directory in the `pihole-manager` directory.
 
 ### Web interface setup
 
@@ -74,7 +74,7 @@ Hit up [docker.io](https://docker.io)
 docker run --name pihole-manage -v `pwd`:/usr/share/nginx/html -p 8080:80 -d nginx
 ```
 
-Now you should be able to hit `http://[address-of-server]:8080
+Now you should be able to hit `http://[address-of-server]:8080`
 
 *I used `8080` in case you are running this on the same server as Pi-hole which already uses port `80` but change as you like*
 
