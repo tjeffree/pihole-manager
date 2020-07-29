@@ -21,6 +21,18 @@ git clone https://github.com/tjeffree/pihole-manager.git
 cd pihole-manager
 ```
 
+### Set up `.env`
+
+Copy the `example.env` to `.env` and update it with your two Pi-hole details.
+
+```
+cp example.env .env
+
+nano .env
+```
+
+*There is no attention to security here, it's assumed your Pi-holes are on your internal network and not exposed to the world.*
+
 ### Full docker
 
 **Install docker and docker compose**
@@ -34,18 +46,6 @@ docker-compose up -d
 ```
 
 That's it, you're done. The dashboard will be available at `http://[address-of-server]:8080`
-
-### Set up `.env`
-
-Copy the `example.env` to `.env` and update it with your two Pi-hole details.
-
-```
-cp example.env .env
-
-nano .env
-```
-
-*There is no attention to security here, it's assumed your Pi-holes are on your internal network and not exposed to the world.*
 
 ### Python daemon setup
 
