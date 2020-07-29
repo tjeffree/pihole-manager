@@ -47,6 +47,8 @@ docker-compose up -d
 
 That's it, you're done. The dashboard will be available at `http://[address-of-server]:8080`
 
+---
+
 ### Python daemon setup
 
 **Install dependancies**
