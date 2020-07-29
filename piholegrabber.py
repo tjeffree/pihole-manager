@@ -18,6 +18,15 @@ hosts = [
 
 print(f'Monitoring: {hosts}')
 
+pdir = os.path.dirname(os.path.abspath(__file__))
+datadir = f'{pdir}/data'
+
+if not os.path.isdir(datadir):
+  try:
+    os.mkdir(datadir)
+  except OSError:
+    print ("Creation of the directory %s failed" % path)
+
 def main_program():
 
   while True:
@@ -43,7 +52,7 @@ def main_program():
         if qtoday > 0:
           queriestoday = queriestoday + qtoday
 
-        with open(f'/home/pi/piholemanage/data/summary-{i}.json', 'w') as fh:
+        with open(f'{datadir}/summary-{i}.json', 'w') as fh:
             fh.write(txt1 + "\n")
         
         fh.close()
