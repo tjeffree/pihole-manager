@@ -328,16 +328,15 @@
                 parseKeyVal(keyval[0], keyval[1])
               }
 
-              setAdminUrls()
-
             }
+
+            setAdminUrls()
+            getData()
+            updateStatus()
           })
           .catch(function () {
               this.dataError = true
           })
-
-        getData()
-        updateStatus()
 
       })
     </script>
