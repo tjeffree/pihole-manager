@@ -1,0 +1,17 @@
+version: '3'
+services:
+  pythonservice:
+    image: "tjeffree/piholemanager"
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - $PWD:/usr/src/app
+    restart: unless-stopped
+  nginx:
+    image: "nginx"
+    ports:
+      - 8080:80
+    volumes:
+      - $PWD:/usr/share/nginx/html
+    restart: unless-stopped

@@ -21,6 +21,20 @@ git clone https://github.com/tjeffree/pihole-manager.git
 cd pihole-manager
 ```
 
+### Full docker
+
+**Install docker and docker compose**
+
+Hit up [docker.io](https://docker.io)
+
+**Run**
+
+```
+docker-compose up -d
+```
+
+That's it, you're done. The dashboard will be available at `http://[address-of-server]:8080`
+
 ### Set up `.env`
 
 Copy the `example.env` to `.env` and update it with your two Pi-hole details.
@@ -37,7 +51,7 @@ nano .env
 
 **Install dependancies**
 
-`pip3 install -U python-dotenv`
+`pip3 install --no-cache-dir -r requirements.txt`
 
 **Test it**
 
@@ -54,6 +68,7 @@ sudo cp piholemanage.service /etc/systemd/system/
 sudo chown root:root /etc/systemd/system/piholemanage.service
 sudo chmod 644 /etc/systemd/system/piholemanage.service
 
+sudo systemctl enable piholemanage
 sudo systemctl start piholemanage
 ```
 Check it's running with:
