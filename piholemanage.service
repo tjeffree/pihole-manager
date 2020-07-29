@@ -1,0 +1,12 @@
+[Unit]
+Description=Pi Hole Data Grabber Service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/env python3 /home/pi/piholemanage/piholegrabber.py
+Environment=PYTHONUNBUFFERED=1
+User=pi
+Restart=on-failure
+
+[Install]
+WantedBy=default.target

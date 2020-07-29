@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width">
+  <meta name="theme-color" content="#000" />
+  <meta name="mobile-web-app-capable" content="yes">
+  <link rel="shortcut icon" href="favicon.png" type="image/x-icon" />
+  <link rel="icon" type="image/png" sizes="192x192"  href="logo.svg">
+  <link rel="icon" type="image/png" sizes="96x96" href="logo.svg">
+  <title>Pi Hole Manager</title>
+  <link href="style/vendor/ionicons-2.0.1/css/ionicons.min.css" rel="stylesheet" type="text/css" />
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+  <link href="https://unpkg.com/bootstrap-table@1.16.0/dist/bootstrap-table.min.css" rel="stylesheet">
+  <link href="style/vendor/AdminLTE.min.css" rel="stylesheet" type="text/css" />
+  <link href="style/vendor/skin-blue.min.css" rel="stylesheet" type="text/css" />
+  <link href="style/pi-hole.css" rel="stylesheet" type="text/css" />
+  <link href="style/custom.css" rel="stylesheet" type="text/css" />
+  </head>
+  <style type="text/css">
+  body {
+    background-color: #333;
+    color: #fefefe;
+  }
+  </style>
+  <body>
+
+    <div class="container">
+      <h1 class="text-center">Pi Holes</h1>
+
+      <div class="row">
+        <div class="col-lg-3 col-sm-6">
+            <div class="small-box bg-green" id="total_queries">
+                <div class="inner">
+                    <p>Total queries (<span id="unique_clients" class="">29</span> clients)</p>
+                    <h3 class="statistic"><span id="dns_queries_today" class="">?</span></h3>
+                </div>
+                <div class="icon">
+                    <i class="ion ion-earth"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-sm-6">
+            <div class="small-box bg-aqua">
+                <div class="inner">
+                    <p>Queries Blocked</p>
+                    <h3 class="statistic"><span id="ads_blocked_today" class="">?</span></h3>
+                </div>
+                <div class="icon">
+                    <i class="ion ion-android-hand"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-sm-6">
+            <div class="small-box bg-yellow">
+                <div class="inner">
+                    <p>Percent Blocked</p>
+                    <h3 class="statistic"><span id="ads_percentage_today" class="">?</span></h3>
+                </div>
+                <div class="icon">
+                    <i class="ion ion-pie-graph"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-sm-6">
+            <div class="small-box bg-red">
+                <div class="inner">
+                    <p>Domains on Blocklist</p>
+                    <h3 class="statistic"><span id="domains_being_blocked">?</span></h3>
+                </div>
+                <div class="icon">
+                    <i class="ion ion-ios-list"></i>
+                </div>
+            </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-lg-3 col-6">
+          <button class="disable btn btn-primary btn-lg btn-block" data-action="disable" data-time="10">Disable for 10 secs</button>
+        </div>
+        <div class="col-lg-3 col-6">
+          <button class="disable btn btn-primary btn-lg btn-block" data-action="disable" data-time="30">Disable for 30 secs</button>
+        </div>
+        <div class="col-lg-3 col-6">
+          <button class="disable btn btn-primary btn-lg btn-block" data-action="disable" data-time="60">Disable for 1 minute</button>
+        </div>
+        <div class="col-lg-3 col-6">
+          <button class="disable btn btn-primary btn-lg btn-block" data-action="disable" data-time="300">Disable for 5 minutes</button>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-12">
+          <button class="enable btn btn-success btn-lg btn-block btn-default" data-action="enable" disabled>ENABLE</button>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-sm-6">
+          <a href="" target="_blank" class="btn btn-link" id="admin-link-0">Pi Hole I</a>
+          <table id="table1" class="keyval-table table table-condensed">
+            <thead>
+              <tr>
+                <th data-field="key"></th>
+                <th data-field="val"></th>
+              </tr>
+            </thead>
+          </table>
+        </div>
+        <div class="col-sm-6">
+          <a href="" target="_blank" class="btn btn-link" id="admin-link-1">Pi Hole II</a>
+          <table id="table2" class="keyval-table table table-condensed">
+            <thead>
+              <tr>
+                <th data-field="key"></th>
+                <th data-field="val"></th>
+              </tr>
+            </thead>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/bootstrap-table@1.16.0/dist/bootstrap-table.min.js"></script>
+    <script>
+      const REFRESH = 2000
+
+      $(document).ready(() => {
+
+        const $enable = $('.enable'),
+              $unique_clients        = $('#unique_clients'),
+              $dns_queries_today     = $('#dns_queries_today'),
+              $ads_blocked_today     = $('#ads_blocked_today'),
+              $ads_percentage_today  = $('#ads_percentage_today'),
+              $domains_being_blocked = $('#domains_being_blocked'),
+              
+              $table1 = $('#table1'),
+              $table2 = $('#table2'),
+              
+              keymap = {
+                'domains_being_blocked': 'Domains',
+                'dns_queries_today': 'Queries',
+                'ads_blocked_today': 'Blocked',
+                'ads_percentage_today': 'Percent',
+                'unique_domains': 'Unique Domains',
+                'queries_forwarded': null,
+                'queries_cached': null,
+                'clients_ever_seen': null,
+                'unique_clients': 'Clients',
+                'dns_queries_all_types': 'Queries All',
+                'reply_NODATA': null,
+                'reply_NXDOMAIN': null,
+                'reply_CNAME': null,
+                'reply_IP': null,
+                'privacy_level': null,
+                'status': 'Status'
+              };
+        
+        const endpoints = [
+          {},
+          {}
+        ]
+
+        const summarypoints = [
+          './data/summary-1.json',
+          './data/summary-2.json'
+        ]
+
+        const statusAction = 'status'
+
+        $('button').on('click', function() {
+          const action = this.getAttribute('data-action'),
+                time   = this.getAttribute('data-time');
+          
+          doAction(action, time);
+        })
+
+        function doAction(action, time) {
+
+          endpoints.forEach(host => {
+
+            let url = `http://${host.ip}/admin/api.php?auth=${host.auth}&${action}`
+
+            if (time) {
+              url += `=${time}`
+            }
+
+            fetch(url, {
+              mode: 'no-cors'
+            })
+
+            if (action === 'disable') {
+              enableOn()
+            } else {
+              enableOff()
+            }
+
+          })
+
+        }
+
+        function requestInterval(fn, delay) {
+          let start = new Date().getTime(),
+              handle = {}
+          function loop() {
+            handle.value = requestAnimationFrame(loop)
+            const current = new Date().getTime(),
+            delta = current - start
+            if (delta >= delay) {
+              fn.call()
+              start = new Date().getTime()
+            }
+          }
+          handle.value = requestAnimationFrame(loop)
+          return handle
+        }
+
+        function updateStatus(host) {
+          requestInterval(() => {
+            getData()
+          }, REFRESH)
+        }
+
+        async function getData() {
+
+          pi1data = await fetch(`${summarypoints[0]}`)
+          pi2data = await fetch(`${summarypoints[1]}`)
+          pi1sum = await pi1data.json()
+          pi2sum = await pi2data.json()
+
+          let clients = cleanNumber(pi1sum.unique_clients).toLocaleString()
+                          + ' / ' + 
+                        cleanNumber(pi2sum.unique_clients).toLocaleString()
+          let dns     = cleanNumber(pi1sum.dns_queries_today)     + cleanNumber(pi2sum.dns_queries_today)
+          let blocked = cleanNumber(pi1sum.ads_blocked_today)     + cleanNumber(pi2sum.ads_blocked_today)
+
+          let perc    = 
+                ((cleanNumber(pi1sum.ads_blocked_today)  + cleanNumber(pi2sum.ads_blocked_today)) /
+                (cleanNumber(pi1sum.dns_queries_today)  + cleanNumber(pi2sum.dns_queries_today))) * 100
+
+          let domains = cleanNumber(pi1sum.domains_being_blocked).toLocaleString() 
+                          + ' / ' + 
+                        cleanNumber(pi2sum.domains_being_blocked).toLocaleString()
+
+          if (pi1sum.status === 'disabled' || pi2sum.status === 'disabled') {
+            enableOn()
+          } else {
+            enableOff()
+          }
+
+          $unique_clients.text(clients)
+          $dns_queries_today.text(dns.toLocaleString())
+          $ads_blocked_today.text(blocked.toLocaleString())
+          $ads_percentage_today.text(Math.round(perc*10)/10 + "%")
+          $domains_being_blocked.text(domains)
+
+          $table1.bootstrapTable('load', summaryToKeyVal(pi1sum))
+          $table2.bootstrapTable('load', summaryToKeyVal(pi2sum))
+
+        }
+
+        function cleanNumber(n) {
+          return parseFloat(n.replace(',',''))
+        }
+
+        function enableOff() {
+          $enable.text('Enabled').attr('disabled', true).addClass('btn-default')
+        }
+
+        function enableOn() {
+          $enable.text('ENABLE').attr('disabled', false).removeClass('btn-default')
+        }
+
+        function summaryToKeyVal(data) {
+
+          let ret = []
+
+          for (let i in data) {
+
+            if (i in keymap && keymap[i] !== null) {
+
+              ret.push({
+                key: keymap[i],
+                val: data[i]
+              })
+
+            }
+
+          }
+
+          return ret
+        }
+
+        function parseKeyVal(key, val) {
+          switch (key) {
+            case 'PI_ONE'     : endpoints[0].ip   = val; break;
+            case 'PI_TWO'     : endpoints[1].ip   = val; break;
+            case 'PI_ONE_AUTH': endpoints[0].auth = val; break;
+            case 'PI_TWO_AUTH': endpoints[1].auth = val; break;
+          }
+        }
+
+        function setAdminUrls() {
+          let x = 0
+          endpoints.forEach(host => {
+            document.getElementById(`admin-link-${x++}`).href = `http://${host.ip}/admin/`
+          })
+        }
+
+        $table1.bootstrapTable({data: []})
+        $table2.bootstrapTable({data: []})
+
+        fetch('.env')
+          .then(response => {
+              if (!response.ok) {
+                  throw new Error("HTTP error " + response.status)
+              }
+              return response.text()
+          })
+          .then(env => {
+            const lines = env.split('\n')
+            for (let line = 0; line < lines.length; line++) {
+              const keyval = lines[line].split('=')
+              if (keyval.length === 2) {
+                parseKeyVal(keyval[0], keyval[1])
+              }
+
+              setAdminUrls()
+
+            }
+          })
+          .catch(function () {
+              this.dataError = true
+          })
+
+        getData()
+        updateStatus()
+
+      })
+    </script>
+  </body>
+</html>

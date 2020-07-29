@@ -1,0 +1,36 @@
+
+.small-box {
+    overflow: hidden;
+}
+.small-box span {
+    text-overflow: ellipsis;
+}
+
+@media (min-width: 576px) {
+    #domains_being_blocked {
+        font-size: 25px;
+    }
+}
+
+.enable, .disable {
+    margin-bottom: 10px;
+}
+
+.btn-success.disabled, .btn-success:disabled {
+    color: #fff;
+    background-color: #bbbbbb;
+    border-color: #999999;
+}
+
+.btn-link, .btn-link:visited, .btn-link:link, .btn-link:active {
+    color: #fefefe;
+}
+
+.keyval-table {
+    background-color: #fefefe;
+    overflow: hidden;
+}
+
+.keyval-table th {
+    display: none;
+}
