@@ -1,6 +1,4 @@
-import datetime
 import time
-import daemon
 import requests
 import re
 import os
