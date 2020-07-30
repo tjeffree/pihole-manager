@@ -1,4 +1,15 @@
 
+body {
+    color: #fefefe;
+    background: #272c30 url(../img/boxed-bg-dark.jpg) repeat fixed;
+}
+
+body .container {
+    background: #272c30;
+    padding-bottom: 30px;
+    box-shadow: 0 0 8px rgba(0,0,0,0.5);
+}
+
 .small-box {
     overflow: hidden;
 }
