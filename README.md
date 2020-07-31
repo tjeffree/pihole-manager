@@ -51,7 +51,7 @@ That's it, you're done. The dashboard will be available at `http://[address-of-s
 
 ### Python daemon setup
 
-**Install dependancies**
+**Install dependencies**
 
 `pip3 install --no-cache-dir -r requirements.txt`
 
