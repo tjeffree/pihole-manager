@@ -257,7 +257,8 @@
         }
 
         function cleanNumber(n) {
-          return parseFloat(n.replace(',',''))
+          n = "" + n
+          return parseFloat(n.replace(/,/g, ''))
         }
 
         function enableOff() {
