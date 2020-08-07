@@ -45,3 +45,11 @@ body .container {
 .keyval-table th {
     display: none;
 }
+
+.table, .table-bordered {
+    color: #bec5cb;
+}
+
+.table-hover {
+    color: #222;
+}

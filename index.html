@@ -15,6 +15,7 @@
   <link href="style/vendor/AdminLTE.min.css" rel="stylesheet" type="text/css" />
   <link href="style/vendor/skin-blue.min.css" rel="stylesheet" type="text/css" />
   <link href="style/pi-hole.css" rel="stylesheet" type="text/css" />
+  <link href="style/pi-hole-dark.css" rel="stylesheet" type="text/css" />
   <link href="style/custom.css" rel="stylesheet" type="text/css" />
   </head>
   <body>
@@ -91,9 +92,41 @@
       </div>
 
       <div class="row">
+        <div class="col-md-12">
+          <div class="box" id="domain-frequency">
+            <div class="box-header with-border">
+              <h3 class="box-title">Top Blocked Domains</h3>
+            </div>
+            <!-- /.box-header -->
+            <div class="box-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                      <thead>
+                        <tr>
+                        <th>Domain</th>
+                        <th>Hits</th>
+                        <th>Frequency</th>
+                        </tr>
+                      </thead>
+                      <tbody id="top_ads">
+                        
+                      </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="overlay" style="display: none;">
+              <i class="fa fa-sync fa-spin"></i>
+            </div>
+            <!-- /.box-body -->
+          </div>
+          <!-- /.box -->
+        </div>
+      </div>
+    
+      <div class="row">
         <div class="col-sm-6">
           <a href="" target="_blank" class="btn btn-link" id="admin-link-0">Pi Hole I</a>
-          <table id="table1" class="keyval-table table table-condensed">
+          <table id="table1" class="keyval-table table">
             <thead>
               <tr>
                 <th data-field="key"></th>
@@ -104,7 +137,7 @@
         </div>
         <div class="col-sm-6">
           <a href="" target="_blank" class="btn btn-link" id="admin-link-1">Pi Hole II</a>
-          <table id="table2" class="keyval-table table table-condensed">
+          <table id="table2" class="keyval-table table">
             <thead>
               <tr>
                 <th data-field="key"></th>
@@ -119,221 +152,6 @@
 
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
     <script src="https://unpkg.com/bootstrap-table@1.16.0/dist/bootstrap-table.min.js"></script>
-    <script>
-      const REFRESH = 2000
-
-      $(document).ready(() => {
-
-        const $enable = $('.enable'),
-              $unique_clients        = $('#unique_clients'),
-              $dns_queries_today     = $('#dns_queries_today'),
-              $ads_blocked_today     = $('#ads_blocked_today'),
-              $ads_percentage_today  = $('#ads_percentage_today'),
-              $domains_being_blocked = $('#domains_being_blocked'),
-              
-              $table1 = $('#table1'),
-              $table2 = $('#table2'),
-              
-              keymap = {
-                'domains_being_blocked': 'Domains',
-                'dns_queries_today': 'Queries',
-                'ads_blocked_today': 'Blocked',
-                'ads_percentage_today': 'Percent',
-                'unique_domains': 'Unique Domains',
-                'queries_forwarded': null,
-                'queries_cached': null,
-                'clients_ever_seen': null,
-                'unique_clients': 'Clients',
-                'dns_queries_all_types': 'Queries All',
-                'reply_NODATA': null,
-                'reply_NXDOMAIN': null,
-                'reply_CNAME': null,
-                'reply_IP': null,
-                'privacy_level': null,
-                'status': 'Status'
-              };
-        
-        const endpoints = [
-          {},
-          {}
-        ]
-
-        const summarypoints = [
-          './data/summary-1.json',
-          './data/summary-2.json'
-        ]
-
-        const statusAction = 'status'
-
-        $('button').on('click', function() {
-          const action = this.getAttribute('data-action'),
-                time   = this.getAttribute('data-time');
-          
-          doAction(action, time);
-        })
-
-        function doAction(action, time) {
-
-          endpoints.forEach(host => {
-
-            let url = `http://${host.ip}/admin/api.php?auth=${host.auth}&${action}`
-
-            if (time) {
-              url += `=${time}`
-            }
-
-            fetch(url, {
-              mode: 'no-cors'
-            })
-
-            if (action === 'disable') {
-              enableOn()
-            } else {
-              enableOff()
-            }
-
-          })
-
-        }
-
-        function requestInterval(fn, delay) {
-          let start = new Date().getTime(),
-              handle = {}
-          function loop() {
-            handle.value = requestAnimationFrame(loop)
-            const current = new Date().getTime(),
-            delta = current - start
-            if (delta >= delay) {
-              fn.call()
-              start = new Date().getTime()
-            }
-          }
-          handle.value = requestAnimationFrame(loop)
-          return handle
-        }
-
-        function updateStatus(host) {
-          requestInterval(() => {
-            getData()
-          }, REFRESH)
-        }
-
-        async function getData() {
-
-          pi1data = await fetch(`${summarypoints[0]}`)
-          pi2data = await fetch(`${summarypoints[1]}`)
-          pi1sum = await pi1data.json()
-          pi2sum = await pi2data.json()
-
-          let clients = cleanNumber(pi1sum.unique_clients).toLocaleString()
-                          + ' / ' + 
-                        cleanNumber(pi2sum.unique_clients).toLocaleString()
-          let dns     = cleanNumber(pi1sum.dns_queries_today)     + cleanNumber(pi2sum.dns_queries_today)
-          let blocked = cleanNumber(pi1sum.ads_blocked_today)     + cleanNumber(pi2sum.ads_blocked_today)
-
-          let perc    = 
-                ((cleanNumber(pi1sum.ads_blocked_today)  + cleanNumber(pi2sum.ads_blocked_today)) /
-                (cleanNumber(pi1sum.dns_queries_today)  + cleanNumber(pi2sum.dns_queries_today))) * 100
-
-          let domains = cleanNumber(pi1sum.domains_being_blocked).toLocaleString() 
-                          + ' / ' + 
-                        cleanNumber(pi2sum.domains_being_blocked).toLocaleString()
-
-          if (pi1sum.status === 'disabled' || pi2sum.status === 'disabled') {
-            enableOn()
-          } else {
-            enableOff()
-          }
-
-          $unique_clients.text(clients)
-          $dns_queries_today.text(dns.toLocaleString())
-          $ads_blocked_today.text(blocked.toLocaleString())
-          $ads_percentage_today.text(Math.round(perc*10)/10 + "%")
-          $domains_being_blocked.text(domains)
-
-          $table1.bootstrapTable('load', summaryToKeyVal(pi1sum))
-          $table2.bootstrapTable('load', summaryToKeyVal(pi2sum))
-
-        }
-
-        function cleanNumber(n) {
-          n = "" + n
-          return parseFloat(n.replace(/,/g, ''))
-        }
-
-        function enableOff() {
-          $enable.text('Enabled').attr('disabled', true).addClass('btn-default')
-        }
-
-        function enableOn() {
-          $enable.text('ENABLE').attr('disabled', false).removeClass('btn-default')
-        }
-
-        function summaryToKeyVal(data) {
-
-          let ret = []
-
-          for (let i in data) {
-
-            if (i in keymap && keymap[i] !== null) {
-
-              ret.push({
-                key: keymap[i],
-                val: data[i]
-              })
-
-            }
-
-          }
-
-          return ret
-        }
-
-        function parseKeyVal(key, val) {
-          switch (key) {
-            case 'PI_ONE'     : endpoints[0].ip   = val; break;
-            case 'PI_TWO'     : endpoints[1].ip   = val; break;
-            case 'PI_ONE_AUTH': endpoints[0].auth = val; break;
-            case 'PI_TWO_AUTH': endpoints[1].auth = val; break;
-          }
-        }
-
-        function setAdminUrls() {
-          let x = 0
-          endpoints.forEach(host => {
-            document.getElementById(`admin-link-${x++}`).href = `http://${host.ip}/admin/`
-          })
-        }
-
-        $table1.bootstrapTable({data: []})
-        $table2.bootstrapTable({data: []})
-
-        fetch('.env')
-          .then(response => {
-              if (!response.ok) {
-                  throw new Error("HTTP error " + response.status)
-              }
-              return response.text()
-          })
-          .then(env => {
-            const lines = env.split('\n')
-            for (let line = 0; line < lines.length; line++) {
-              const keyval = lines[line].split('=')
-              if (keyval.length === 2) {
-                parseKeyVal(keyval[0], keyval[1])
-              }
-
-            }
-
-            setAdminUrls()
-            getData()
-            updateStatus()
-          })
-          .catch(function () {
-              alert('Something bad happened.')
-          })
-
-      })
-    </script>
+    <script src="./manager.js"></script>
   </body>
 </html>
