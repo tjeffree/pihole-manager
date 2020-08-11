@@ -53,3 +53,8 @@ body .container {
 .table-hover {
     color: #222;
 }
+
+.btn-visit {
+    padding: 0 .5rem;
+    line-height: 1.4;
+}
